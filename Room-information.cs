@@ -3,6 +3,20 @@ using System.Collections.Generic;
 
 namespace Project_Final
 {
+
+public class Guest
+    {
+        public string Name { get; private set;}
+        public int ID { get; private set;}
+        public string PhoneNumber { get; private set;}
+
+        public Guest(string name, int id, string phone)
+        {
+            Name = name;
+            ID = id;
+            PhoneNumber = phone;
+        }
+    }
 public abstract class Room
 {
     public string RoomNumber { get; private set; }
