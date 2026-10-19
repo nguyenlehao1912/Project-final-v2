@@ -6,25 +6,36 @@ namespace Project_Final
 public abstract class Room
 {
     public string RoomNumber { get; private set; }
-    public double BasePrice { get; protected set; }
+    public decimal BasePrice { get; protected set; }
     public List<string> Amenities { get; private set; }
 
-    public Room(string roomNumber, double basePrice, List<string> amenities = null)
+    protected Room(string roomNumber, decimal basePrice, List<string> amenities = null)
     {
+        if (string.IsNullOrWhiteSpace(roomNumber)) throw new ArgumentException("Room number is not empty");
+        if (basePrice <= 0) throw new ArgumentException("Base price must be greater than 0");
         RoomNumber = roomNumber;
         BasePrice = basePrice;
         Amenities = amenities ?? new List<string>();
     }
 
-    public abstract double CalculateNightlyRate();
+    public abstract decimal CalculateNightlyRate();
+    public decimal CalculateRoomCharge(DateTime checkIn, DateTime checkOut)
+        {
+            if (checkOut.Date <= checkIn.Date)
+            {
+                throw new ArgumentException("Ngay tra phong phai sau ngay nhan phong");
+            }
+            int nights = (checkOut.Date - checkIn.Date).Days;
+            return CalculateNightlyRate() * nights;
+        }
     public abstract string GetRoomType();
 }
 public class StandardRoom : Room
 {
-    public StandardRoom(string roomNumber, double basePrice, List<string> amenities = null)
+    protected StandardRoom(string roomNumber, decimal basePrice, List<string> amenities = null)
         : base(roomNumber, basePrice, amenities ?? new List<string> { "WiFi", "TV", "Air Conditioner" }){}
 
-    public override double CalculateNightlyRate()
+    public override decimal CalculateNightlyRate()
     {
         return BasePrice;
     }
@@ -37,15 +48,15 @@ public class StandardRoom : Room
 
 public class VipRoom : Room
 {
-    public double VipServiceFeeRatio { get; private set; }
+    public decimal VipServiceFeeRatio { get; private set; }
 
-    public VipRoom(string roomNumber, decimal basePrice, double vipServiceFeeRatio = 0.2m, List<string> amenities = null)
+    protected VipRoom(string roomNumber, decimal basePrice, decimal vipServiceFeeRatio = 0.2m, List<string> amenities = null)
         : base(roomNumber, basePrice, amenities ?? new List<string> { "High-speed WiFi", "Smart TV 4K", "Air Conditioner", "Bathtub", "Mini Bar", "Ocean View" })
     {
         VipServiceFeeRatio = vipServiceFeeRatio;
     }
 
-    public override double CalculateNightlyRate()
+    public override decimal CalculateNightlyRate()
     {
         return BasePrice * (1 + VipServiceFeeRatio);
     }
