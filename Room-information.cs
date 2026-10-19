@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Project_Final
 {
@@ -21,15 +22,17 @@ public abstract class Room
 {
     public string RoomNumber { get; private set; }
     public decimal BasePrice { get; protected set; }
-    public List<string> Amenities { get; private set; }
+    private readonly List<string> _amenities;
+    public IReadOnlyList<string> Amenities => _amenities.AsReadOnly();
 
-    protected Room(string roomNumber, decimal basePrice, List<string> amenities = null)
+
+    protected Room(string roomNumber, decimal basePrice, List<string> amenities)
     {
         if (string.IsNullOrWhiteSpace(roomNumber)) throw new ArgumentException("Room number is not empty");
         if (basePrice <= 0) throw new ArgumentException("Base price must be greater than 0");
         RoomNumber = roomNumber;
         BasePrice = basePrice;
-        Amenities = amenities ?? new List<string>();
+        _amenities =  amenities.Distinct().ToList();
     }
 
     public abstract decimal CalculateNightlyRate();
@@ -46,7 +49,7 @@ public abstract class Room
 }
 public class StandardRoom : Room
 {
-    protected StandardRoom(string roomNumber, decimal basePrice, List<string> amenities = null)
+    public StandardRoom(string roomNumber, decimal basePrice, List<string> amenities = null)
         : base(roomNumber, basePrice, amenities ?? new List<string> { "WiFi", "TV", "Air Conditioner" }){}
 
     public override decimal CalculateNightlyRate()
@@ -64,7 +67,7 @@ public class VipRoom : Room
 {
     public decimal VipServiceFeeRatio { get; private set; }
 
-    protected VipRoom(string roomNumber, decimal basePrice, decimal vipServiceFeeRatio = 0.2m, List<string> amenities = null)
+    public VipRoom(string roomNumber, decimal basePrice, decimal vipServiceFeeRatio = 0.2m, List<string> amenities = null)
         : base(roomNumber, basePrice, amenities ?? new List<string> { "High-speed WiFi", "Smart TV 4K", "Air Conditioner", "Bathtub", "Mini Bar", "Ocean View" })
     {
         VipServiceFeeRatio = vipServiceFeeRatio;
