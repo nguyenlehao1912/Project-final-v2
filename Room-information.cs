@@ -4,7 +4,6 @@ using System.Linq;
 
 namespace Project_Final
 {
-
 public class Guest
     {
         public string Name { get; private set;}
@@ -13,18 +12,21 @@ public class Guest
 
         public Guest(string name, int id, string phone)
         {
+            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name is not empty");
+            if (string.IsNullOrWhiteSpace(phone)) throw new ArgumentException("Phone is not empty");
             Name = name;
             ID = id;
             PhoneNumber = phone;
         }
     }
+
+public enum RoomType { Standard, Vip }
 public abstract class Room
 {
     public string RoomNumber { get; private set; }
     public decimal BasePrice { get; protected set; }
     private readonly List<string> _amenities;
     public IReadOnlyList<string> Amenities => _amenities.AsReadOnly();
-
 
     protected Room(string roomNumber, decimal basePrice, List<string> amenities)
     {
@@ -36,16 +38,16 @@ public abstract class Room
     }
 
     public abstract decimal CalculateNightlyRate();
+    public abstract RoomType Type { get; }
     public decimal CalculateRoomCharge(DateTime checkIn, DateTime checkOut)
         {
             if (checkOut.Date <= checkIn.Date)
             {
-                throw new ArgumentException("Ngay tra phong phai sau ngay nhan phong");
+                throw new ArgumentException("Check-out date must be after check-in date");
             }
             int nights = (checkOut.Date - checkIn.Date).Days;
             return CalculateNightlyRate() * nights;
         }
-    public abstract string GetRoomType();
 }
 public class StandardRoom : Room
 {
@@ -57,10 +59,7 @@ public class StandardRoom : Room
         return BasePrice;
     }
 
-    public override string GetRoomType()
-    {
-        return "Standard";
-    }
+    public override RoomType Type => RoomType.Standard;
 }
 
 public class VipRoom : Room
@@ -70,6 +69,7 @@ public class VipRoom : Room
     public VipRoom(string roomNumber, decimal basePrice, decimal vipServiceFeeRatio = 0.2m, List<string> amenities = null)
         : base(roomNumber, basePrice, amenities ?? new List<string> { "High-speed WiFi", "Smart TV 4K", "Air Conditioner", "Bathtub", "Mini Bar", "Ocean View" })
     {
+        if (vipServiceFeeRatio < 0) throw new ArgumentException("VIP service fee ratio must not be negative");
         VipServiceFeeRatio = vipServiceFeeRatio;
     }
 
@@ -78,9 +78,6 @@ public class VipRoom : Room
         return BasePrice * (1 + VipServiceFeeRatio);
     }
 
-    public override string GetRoomType()
-    {
-        return "VIP";
-    }
+    public override RoomType Type => RoomType.Vip;
 }
 }
