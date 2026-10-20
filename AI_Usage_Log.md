@@ -12,6 +12,7 @@
 **AI trả lời:** Phòng VIP nên có danh sách tiện ích cao cấp hơn phòng Standard (WiFi tốc độ cao, Smart TV, bồn tắm, minibar, view biển), và không nên để trùng lặp tiện ích. Ngoài `Room`, hệ thống cần thêm `Guest`, `DateRange` (khoảng ngày ở), `Reservation`, `HotelService` và các exception cho lỗi nghiệp vụ. Mỗi class chỉ làm một việc để tránh God class.
 
 **Nhóm làm:** Thêm tiện ích cho phòng VIP, viết `Guest`.
+
 -----------
 **Công cụ AI:** Gemini (3.1 Pro) | **Thành viên:** Nguyễn Lê Hảo (25110019)
 ### 1.1. Hỏi: Phân tích yêu cầu đồ án OOP nhóm 2 người và gợi ý chia việc?
@@ -31,7 +32,8 @@
 **AI trả lời:** Dùng nút Revert ngay trong Pull Request đã đóng trên GitHub để tạo một PR đảo ngược. Sau khi merge bản Revert, nhánh cũ bị dính lịch sử "vứt bỏ", do đó phải chuyển về nhánh `main` dưới máy tính (`git pull`), xóa nhánh cũ và tạo nhánh hoàn toàn mới (ví dụ: `v2`) để code lại.
 
 **Nhóm làm:** Bấm Revert trên GitHub, gộp vào `main`. Mở VSC dọn dẹp nhánh cũ, pull nhánh `main` sạch về và tạo nhánh mới `Room-information-v2` để tiếp tục làm việc.
-/////////////////////////////////////////////////////////////
+
+-----------------------------------------------------------
 ## Tuần 2: lõi hệ thống 
 **Công cụ AI:** Claude (Anthropic) | **Thành viên:** Bùi Tấn Lộc (25110037)
 ### 2.1. Hỏi: Rà code tuần 1, cần sửa gì?
@@ -63,6 +65,7 @@
 **AI trả lời:** `IAddOnService` có `Name` và `CalculateCost(int nights)`, hai dịch vụ `BreakfastService` (tính theo người nhân số đêm) và `LaundryService` (phí cố định) cùng cài đặt interface này. `HotelService` có `AddRoom`, `SearchAvailable` và `Book`, trong đó `Book` ném `RoomNotAvailableException` nếu phòng đã có người đặt trùng ngày, bỏ qua các reservation đã hủy. Kèm ba test: đặt trùng bị chặn, đặt liền kề được, hủy rồi đặt lại được.
 
 **Nhóm làm:** Tham khảo, tự đọc hiểu và chỉnh lại trước khi dùng.
+
 ----------------------------------------------------------------------------
 **Công cụ AI:** Gemini (3.1 Pro) | **Thành viên:** Nguyễn Lê Hảo (25110019)
 ### 2.1. Hỏi: Xây dựng lớp Reservation và xử lý trạng thái đặt phòng như thế nào?
