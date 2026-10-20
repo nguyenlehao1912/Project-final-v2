@@ -1,60 +1,82 @@
+// File reservation.cs
+
 using System;
-namespace Project_Final
+
+namespace Project_final
 {
     public enum ReservationStatus
     {
-       Booked,
-       CheckedIn,
+        Booked,
+        CheckedIn,
         CheckedOut,
         Cancelled
     }
+
     public class Reservation
     {
-        public string ReservationID { get; private set; }
-        public Guest Guest { get; private set; }
+        public string ReservationId { get; private set; }
+        public Guest Guest { get; private set; } 
         public Room Room { get; private set; }
-        public DateTime CheckInDate { get; private set; }
-        public DateTime CheckOutDate { get; private set; }
+        public DateTime StartDate { get; private set; }
+        public DateTime EndDate { get; private set; }
         public ReservationStatus Status { get; private set; }
-        public decimal TotalBill { get; private set; }
+        public decimal TotalBill { get; private set; } // Sẽ được tính khi CheckOut
 
-        public Reservation(string id, Guest guest, Room room, DateTime checkInDate, DateTime checkOutDate)
+        public Reservation(string id, Guest guest, Room room, DateTime startDate, DateTime endDate)
         {
-            ReservationID = id;
+            ReservationId = id;
             Guest = guest;
             Room = room;
-            CheckInDate = checkInDate;
-            CheckOutDate = checkOutDate;
-            Status = ReservationStatus.Booked;
+            StartDate = startDate;
+            EndDate = endDate;
+            Status = ReservationStatus.Booked; 
         }
+
+        // Kiểm tra và thực hiện Check In
         public void CheckIn()
         {
             if (Status != ReservationStatus.Booked)
-                throw new InvalidOperationException("Cannot check in. Reservation is not booked.");
+            {
+                throw new InvalidOperationException("Lỗi: Chỉ có thể Check-in khi trạng thái đang là Booked.");
+            }
             Status = ReservationStatus.CheckedIn;
-            Console.WriteLine($"Reservation {ReservationID} has successfully been checked in.");
+            Console.WriteLine($"Reservation {ReservationId}: Đã Check-in thành công.");
         }
+
+        // Kiểm tra và thực hiện Check Out, gọi hàm tính tiền của Lộc
         public void CheckOut()
         {
             if (Status != ReservationStatus.CheckedIn)
-                throw new InvalidOperationException("Cannot check out. Reservation is not checked in.");
+            {
+                throw new InvalidOperationException("Lỗi: Không thể Check-out vì khách chưa Check-in.");
+            }
             Status = ReservationStatus.CheckedOut;
-            int nights = (CheckOutDate - CheckInDate).Days;
-            TotalBill = Room.CalculateNightlyRate() * nights;
-            Console.WriteLine($"Reservation {ReservationID} has successfully been checked out. Total bill: {TotalBill:C}");
+            
+            // TÍNH TIỀN: Hảo tính số đêm và gọi hàm CalculatePrice của class Room (do Lộc viết)
+            int nights = (EndDate - StartDate).Days;
+            TotalBill = Room.CalculatePrice(nights); 
+            
+            Console.WriteLine($"Reservation {ReservationId}: Đã Check-out. Tổng tiền: {TotalBill}");
         }
+
         public void Cancel()
         {
-            if (Status == ReservationStatus.CheckedIn)
-                throw new InvalidOperationException("Cannot cancel. Reservation is already checked in.");
+            if (Status != ReservationStatus.Booked)
+            {
+                 throw new InvalidOperationException("Lỗi: Chỉ có thể Cancel khi phòng chưa được Check-in.");
+            }
             Status = ReservationStatus.Cancelled;
-            Console.WriteLine($"Reservation {ReservationID} has been cancelled.");
+            Console.WriteLine($"Reservation {ReservationId}: Đã hủy đơn đặt phòng.");
         }
-        public bool IsOverlapping(DateTime newCheckIn, DateTime newCheckOut)
+
+        // Thuật toán kiểm tra trùng lịch (Double-booking prevention)
+        public bool IsOverlapping(DateTime newStartDate, DateTime newEndDate)
         {
-            if(Status == ReservationStatus.Cancelled)
-                return false; 
-            return newCheckIn < CheckOutDate && newCheckOut > CheckInDate;
+            if (Status == ReservationStatus.Cancelled)
+            {
+                return false;
+            }
+            return (newStartDate < EndDate) && (newEndDate > StartDate);
         }
     }
 }
