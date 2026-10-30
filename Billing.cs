@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 
 namespace Project_final;
 
@@ -11,9 +13,22 @@ public class Invoice
 {
     public List<InvoiceLine> Lines { get; } = new();
     public decimal Total => Lines.Sum(l => l.Amount);
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("============ INVOICE ============");
+        foreach (var line in Lines)
+            sb.AppendLine($"{line.Description,-40} {line.Amount.ToString("N0", CultureInfo.InvariantCulture),14} VND");
+        sb.AppendLine("-------------------------------------------------------------");
+        sb.AppendLine($"{"TOTAL",-40} {Total.ToString("N0", CultureInfo.InvariantCulture),14} VND");
+        return sb.ToString();
+    }
 }
 
-// Tính hóa đơn cho một Reservation
+// Tính hóa đơn cho một Reservation.
+// Tách riêng khỏi Reservation để tránh God class.
+// Thêm dịch vụ mới = thêm 1 class implement IAddOnService, class này không phải sửa.
 public class BillingService
 {
     public Invoice Generate(Reservation r)
@@ -27,7 +42,15 @@ public class BillingService
             $"Room {r.Room.Number} ({type.Name}) x {nights} night(s)",
             type.GetNightlyRate() * nights));
 
-        // TODO: add-on fees and VIP exemption
+        // Phụ phí dịch vụ: VIP được miễn nếu dịch vụ cho phép                                                                                          
+        
+        foreach (IAddOnService service in r.AddOns)
+        {
+            bool free = type.IsVip && service.FreeForVip;
+            decimal cost = free ? 0m : service.CalculateCost(nights);
+            string label = free ? $"{service.Name} (free for VIP)" : service.Name;
+            invoice.Lines.Add(new InvoiceLine(label, cost));
+        }
 
         return invoice;
     }
