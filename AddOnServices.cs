@@ -18,6 +18,7 @@ public class BreakfastService : IAddOnService
     private readonly decimal _pricePerPerson;
 
     public string Name => "Breakfast";
+    public bool FreeForVip => true;  
 
     public BreakfastService(int persons, decimal pricePerPerson = 100000m)
     {
@@ -37,6 +38,7 @@ public class LaundryService : IAddOnService
     private readonly decimal _fee;
 
     public string Name => "Laundry";
+    public bool FreeForVip => true;  
 
     public LaundryService(decimal fee = 150000m)
     {
