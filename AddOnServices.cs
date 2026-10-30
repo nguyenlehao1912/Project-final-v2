@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Project_final;
+namespace Project_Final;
 
 // Hợp đồng: dịch vụ nào cũng phải có tên và tự tính được chi phí
 public interface IAddOnService

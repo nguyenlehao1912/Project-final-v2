@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 
-namespace Project_final;
+namespace Project_Final;
 
 // Một dòng trong hóa đơn
 public record InvoiceLine(string Description, decimal Amount);
@@ -34,19 +34,18 @@ public class BillingService
     public Invoice Generate(Reservation r)
     {
         var invoice = new Invoice();
-        int nights = r.Nights;
-        RoomType type = r.Room.Type;
-
+        int nights = (r.CheckOutDate - r.CheckInDate).Days;
+        
         // Tiền phòng: mỗi loại phòng tự quyết giá (đa hình qua GetNightlyRate)
         invoice.Lines.Add(new InvoiceLine(
-            $"Room {r.Room.Number} ({type.Name}) x {nights} night(s)",
-            type.GetNightlyRate() * nights));
+            $"Room {r.Room.RoomNumber} ({r.Room.Type}) x {nights} night(s)",
+            r.Room.CalculateNightlyRate() * nights));
 
         // Phụ phí dịch vụ: VIP được miễn nếu dịch vụ cho phép                                                                                          
-        
+        bool isVip = (r.Room.Type == RoomType.Vip);
         foreach (IAddOnService service in r.AddOns)
         {
-            bool free = type.IsVip && service.FreeForVip;
+            bool free = isVip && service.FreeForVip;
             decimal cost = free ? 0m : service.CalculateCost(nights);
             string label = free ? $"{service.Name} (free for VIP)" : service.Name;
             invoice.Lines.Add(new InvoiceLine(label, cost));
