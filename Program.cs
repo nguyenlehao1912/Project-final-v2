@@ -1,11 +1,9 @@
-<<<<<<< HEAD
-=======
 ﻿using System;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 
-namespace Project_final;
+namespace Project_Final;
 
 public class Program
 {
@@ -13,7 +11,7 @@ public class Program
     {
         Console.OutputEncoding = Encoding.UTF8;
 
-        Hotel hotel = SeedHotel();
+        HotelManager hotel = SeedHotel();
         bool running = true;
 
         while (running)
@@ -46,21 +44,21 @@ public class Program
         Console.Write("Choose: ");
     }
 
-    private static void SearchRooms(Hotel hotel)
+    private static void SearchRooms(HotelManager hotel)
     {
         DateTime from = ReadDate("Check-in date (dd/MM/yyyy): ");
         DateTime to = ReadDate("Check-out date (dd/MM/yyyy): ");
 
         try
         {
-            var rooms = hotel.FindAvailableRooms(from, to, null).ToList();
+            var rooms = hotel.GetAvailableRooms(from, to).ToList();
             if (rooms.Count == 0)
             {
                 Console.WriteLine("No rooms available.");
                 return;
             }
             foreach (Room room in rooms)
-                Console.WriteLine($"  Room {room.Number} - {room.Type.Name} - {room.Type.GetNightlyRate():N0} VND/night");
+                Console.WriteLine($"Room {room.Number} - {room.Type.Name} - {room.Type.GetNightlyRate():N0} VND/night");
         }
         catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
         {
@@ -81,14 +79,13 @@ public class Program
     }
 
     // Dữ liệu mẫu để demo
-    private static Hotel SeedHotel()
+    private static HotelManager SeedHotel()
     {
-        var hotel = new Hotel();
-        hotel.Rooms.Add(new Room(101, new StandardRoomType()));
-        hotel.Rooms.Add(new Room(102, new StandardRoomType()));
-        hotel.Rooms.Add(new Room(201, new VipRoomType()));
-        hotel.Rooms.Add(new Room(202, new VipRoomType()));
-        return hotel;
+        var manager = new HotelManager();
+        manager.AddRoom(new StandardRoom("101", 500000m));
+        manager.AddRoom(new StandardRoom("102", 500000m));
+        manager.AddRoom(new VipRoom("201", 1200000m));
+        manager.AddRoom(new VipRoom("202", 1200000m));
+        return manager;
     }
 }
->>>>>>> a857f5f (AI sinh code thêm vòng lặp menu console và chức năng tìm phòng trống trong main)
