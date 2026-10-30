@@ -27,7 +27,7 @@ namespace Project_Final
             CheckOutDate = checkOutDate;
             Status = ReservationStatus.Booked;
         }
-        public void CheckIn()
+        public void CheckIn() 
         {
             if (Status != ReservationStatus.Booked)
                 throw new InvalidOperationException("Cannot check in. Reservation is not booked.");
