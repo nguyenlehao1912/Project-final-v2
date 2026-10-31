@@ -1,0 +1,25 @@
+# ==========================================
+# THƯ MỤC BUILD VÀ FILE TẠM (QUAN TRỌNG NHẤT)
+# ==========================================
+# Xóa bỏ các file rác sinh ra trong quá trình chạy lệnh 'dotnet run'
+bin/
+obj/
+
+# ==========================================
+# FILE CẤU HÌNH CÁ NHÂN CỦA VISUAL STUDIO / VS CODE
+# ==========================================
+.vs/
+.vscode/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+
+# ==========================================
+# CACHE, LOG VÀ CÁC FILE HỆ THỐNG KHÁC
+# ==========================================
+*.log
+*.sqlite
+*.db
+.DS_Store
+Thumbs.db

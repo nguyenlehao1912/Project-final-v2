@@ -10,7 +10,7 @@ namespace Project_Final
         private List<Reservation> _reservations;
 
         //TẠo ra 2 danh sách chỉ đọc để truy cập các phòng và các đặt lịch + trưng bày dữ liệu
-        public IreadOnlyList<Room> Rooms => _rooms;
+        public IReadOnlyList<Room> Rooms => _rooms;
         public IReadOnlyList<Reservation> Reservations => _reservations;
         public HotelManager()
         {
