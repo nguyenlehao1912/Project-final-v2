@@ -41,14 +41,11 @@ namespace Project_Final
             if (Status == ReservationStatus.Cancelled || Status == ReservationStatus.CheckedOut)
                 throw new InvalidOperationException("Cannot add service. Reservation is either cancelled or checked out.");
             _addOns.Add(service);
-            Console.WriteLine($"Service {service.Name} has been added to reservation {ReservationID}.");
         }
         public void CheckIn() 
         {
             if (Status != ReservationStatus.Booked)
                 throw new InvalidOperationException("Cannot check in. Reservation is not booked.");
-            Status = ReservationStatus.CheckedIn;
-            Console.WriteLine($"Reservation {ReservationID} has successfully been checked in.");
         }
         public Invoice CheckOut()
         {
@@ -64,7 +61,6 @@ namespace Project_Final
             if (Status != ReservationStatus.Booked)
                 throw new InvalidOperationException("Only a booked reservation can be cancelled.");
             Status = ReservationStatus.Cancelled;
-            Console.WriteLine($"Reservation {ReservationID} has been cancelled.");
         }
         public bool IsOverlapping(DateTime newCheckIn, DateTime newCheckOut)
         {
