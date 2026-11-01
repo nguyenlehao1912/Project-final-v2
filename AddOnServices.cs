@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,11 +18,15 @@ public class BreakfastService : IAddOnService
     private readonly int _persons;
     private readonly decimal _pricePerPerson;
 
-    public string Name => "Breakfast";
+    public string Name => $"Breakfast x {_persons} person(s)";
     public bool FreeForVip => true;  
 
     public BreakfastService(int persons, decimal pricePerPerson = 100000m)
     {
+        if(persons <= 0)
+            throw new ArgumentException("Number of persons must be greater than zero.");
+        if(pricePerPerson < 0)
+            throw new ArgumentException("Price per person must be a non-negative value.");
         _persons = persons;
         _pricePerPerson = pricePerPerson;
     }
@@ -42,6 +47,8 @@ public class LaundryService : IAddOnService
 
     public LaundryService(decimal fee = 150000m)
     {
+        if(fee < 0)
+            throw new ArgumentException("Fee must be a non-negative value.");   
         _fee = fee;
     }
 
@@ -57,11 +64,15 @@ public class SpaService : IAddOnService
     private readonly int _persons;
     private readonly decimal _pricePerPerson;
 
-    public string Name => "Hot Spring & Sauna";
+    public string Name => $"Hot Spring & Sauna x {_persons} person(s)";
     public bool FreeForVip => true;
 
     public SpaService(int persons, decimal pricePerPerson = 100000m)
     {
+        if(persons <= 0)
+            throw new ArgumentException("Number of persons must be greater than zero.");
+        if(pricePerPerson < 0)
+            throw new ArgumentException("Price per person must be a non-negative value.");
         _persons = persons;
         _pricePerPerson = pricePerPerson;
     }
@@ -72,7 +83,7 @@ public class SpaService : IAddOnService
 // Khu vui chơi sinh thái: miễn phí cho mọi khách
 public class EcoParkService : IAddOnService
 {
-    public string Name => "Eco Park";
+    public string Name => "Eco Park (free)";
 
     public decimal CalculateCost(int nights) => 0m;
 }
