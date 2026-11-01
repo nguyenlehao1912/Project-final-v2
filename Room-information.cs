@@ -17,6 +17,8 @@ public class Guest
             Name = name;
             ID = id;
             PhoneNumber = phone;
+            if(PhoneNumber.Length < 10 || PhoneNumber.Length > 11)
+                throw new ArgumentException("Phone number must be 10 or 11 digits");
         }
     }
 
