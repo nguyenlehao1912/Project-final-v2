@@ -11,7 +11,7 @@ public interface IAddOnService
     decimal CalculateCost(int nights);
     bool FreeForVip => false;
 }
-
+ 
 // Ăn sáng: giá mỗi người × số người × số đêm, miễn phí cho phòng VIP
 public class BreakfastService : IAddOnService
 {
