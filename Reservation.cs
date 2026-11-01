@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 namespace Project_Final
 {
     public enum ReservationStatus
@@ -17,15 +18,30 @@ namespace Project_Final
         public DateTime CheckOutDate { get; private set; }
         public ReservationStatus Status { get; private set; }
         public decimal TotalBill { get; private set; }
-
+        private readonly List<IAddOnService> _addOns = new List<IAddOnService>();
+        public IReadOnlyList<IAddOnService> AddOns => _addOns;
         public Reservation(string id, Guest guest, Room room, DateTime checkInDate, DateTime checkOutDate)
         {
+            if (string.IsNullOrWhiteSpace(id)) throw new ArgumentException("Reservation ID is not empty");
+            if (guest == null) throw new ArgumentNullException(nameof(guest));
+            if (room == null) throw new ArgumentNullException(nameof(room));
+            if (checkOutDate.Date <= checkInDate.Date)
+                throw new ArgumentException("Check-out date must be after check-in date");
             ReservationID = id;
             Guest = guest;
             Room = room;
-            CheckInDate = checkInDate;
-            CheckOutDate = checkOutDate;
+            CheckInDate = checkInDate.Date;
+            CheckOutDate = checkOutDate.Date;
             Status = ReservationStatus.Booked;
+        }
+         public void AddService(IAddOnService service)
+        {
+            if (service == null)
+                throw new ArgumentNullException(nameof(service), "Service cannot be null.");
+            if (Status == ReservationStatus.Cancelled || Status == ReservationStatus.CheckedOut)
+                throw new InvalidOperationException("Cannot add service. Reservation is either cancelled or checked out.");
+            _addOns.Add(service);
+            Console.WriteLine($"Service {service.Name} has been added to reservation {ReservationID}.");
         }
         public void CheckIn() 
         {
@@ -34,18 +50,18 @@ namespace Project_Final
             Status = ReservationStatus.CheckedIn;
             Console.WriteLine($"Reservation {ReservationID} has successfully been checked in.");
         }
-        public void CheckOut()
+        public Invoice CheckOut()
         {
             if (Status != ReservationStatus.CheckedIn)
                 throw new InvalidOperationException("Cannot check out. Reservation is not checked in.");
+            Invoice invoice = new BiliingService().Generate(this);
+            TotalBill = invoice.Total;
             Status = ReservationStatus.CheckedOut;
-            int nights = (CheckOutDate - CheckInDate).Days;
-            TotalBill = Room.CalculateNightlyRate() * nights;
-            Console.WriteLine($"Reservation {ReservationID} has successfully been checked out. Total bill: {TotalBill:C}");
+            return invoice;
         }
         public void Cancel()
         {
-            if (Status == ReservationStatus.CheckedIn)
+            if (Status == ReservationStatus.Booked)
                 throw new InvalidOperationException("Cannot cancel. Reservation is already checked in.");
             Status = ReservationStatus.Cancelled;
             Console.WriteLine($"Reservation {ReservationID} has been cancelled.");
