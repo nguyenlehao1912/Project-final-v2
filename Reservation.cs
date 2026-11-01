@@ -54,7 +54,7 @@ namespace Project_Final
         {
             if (Status != ReservationStatus.CheckedIn)
                 throw new InvalidOperationException("Cannot check out. Reservation is not checked in.");
-            Invoice invoice = new BiliingService().Generate(this);
+            Invoice invoice = new BillingService().Generate(this);
             TotalBill = invoice.Total;
             Status = ReservationStatus.CheckedOut;
             return invoice;
