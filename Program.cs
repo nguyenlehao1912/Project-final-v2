@@ -10,7 +10,10 @@ public class Program
     public static void Main(string[] args)
     {
         Console.OutputEncoding = Encoding.UTF8;
-
+        if(args.Length > 0 && args[0] == "test")
+        {
+            return TestRunner.Run();
+        }
         HotelManager hotel = SeedHotel();
         bool running = true;
 
@@ -32,6 +35,7 @@ public class Program
         }
 
         Console.WriteLine("Goodbye!");
+        return 0;
     }
 
     // Bắt lỗi nghiệp vụ ở một chỗ duy nhất, chương trình không bị sập
