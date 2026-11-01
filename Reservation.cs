@@ -61,8 +61,8 @@ namespace Project_Final
         }
         public void Cancel()
         {
-            if (Status == ReservationStatus.Booked)
-                throw new InvalidOperationException("Cannot cancel. Reservation is already checked in.");
+            if (Status != ReservationStatus.Booked)
+                throw new InvalidOperationException("Only a booked reservation can be cancelled.");
             Status = ReservationStatus.Cancelled;
             Console.WriteLine($"Reservation {ReservationID} has been cancelled.");
         }
