@@ -46,6 +46,7 @@ namespace Project_Final
         {
             if (Status != ReservationStatus.Booked)
                 throw new InvalidOperationException("Cannot check in. Reservation is not booked.");
+            Status = ReservationStatus.CheckedIn;
         }
         public Invoice CheckOut()
         {
