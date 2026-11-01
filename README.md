@@ -1,60 +1,103 @@
-# 🏨 Hotel Reservation System - Đồ án Lập trình Hướng đối tượng (OOP)
+# 🏨 Đồ án OOP: Hotel Reservation System
 
-Hệ thống Quản lý Đặt phòng Khách sạn được xây dựng bằng ngôn ngữ **C# (.NET)** chạy trên môi trường Console. Đồ án tập trung vào việc áp dụng và thể hiện rõ nét 4 nguyên lý cốt lõi của Lập trình Hướng đối tượng (OOP): Đóng gói, Trừu tượng, Kế thừa và Đa hình.
+Ứng dụng console quản lý đặt phòng khách sạn, viết bằng C# (.NET 10), áp dụng 4 nguyên lý hướng đối tượng: đóng gói, trừu tượng, kế thừa, đa hình.
 
-## 👥 Thành viên nhóm
-1. **Nguyễn Lê Hảo** (MSSV: 25110019)
-2. **Bùi Tấn Lộc** (MSSV: 25110037)
+- **Môn học:** Lập trình hướng đối tượng, HK1 2026-2027
+- **GVHD:** Huỳnh Xuân Phụng
 
----
+## 👥 Thông tin nhóm
 
-## 🚀 Các tính năng chính (Features)
+| Thành viên | MSSV | Phần việc chính |
+|---|---|---|
+| Nguyễn Lê Hảo | 25110019 | `Reservation`, trạng thái đặt phòng, chống trùng lịch, `HotelManager` (tìm phòng trống) |
+| Bùi Tấn Lộc | 25110037 | `Guest`, `Room`, tính tiền và hóa đơn, Console Menu, test |
 
-*   **Quản lý Phòng (Room Management):** Hỗ trợ nhiều loại phòng (Standard, VIP) với công thức tính giá và tiện ích (Amenities) khác nhau.
-*   **Quản lý Đặt phòng (Reservation State Machine):** Quản lý trạng thái vòng đời của một đơn đặt phòng chặt chẽ: `Booked` ➡️ `CheckedIn` ➡️ `CheckedOut` hoặc `Cancelled`. Hệ thống tự động chặn các thao tác sai luồng trạng thái.
-*   **Chống trùng lịch (Overlapping Prevention):** Thuật toán tự động lọc và tìm kiếm phòng trống dựa trên khoảng thời gian Check-in và Check-out mà khách yêu cầu.
-*   **Dịch vụ đi kèm (Add-on Services):** Cho phép thêm các dịch vụ như Ăn sáng, Giặt ủi, Spa. Tự động miễn phí một số dịch vụ cao cấp nếu khách đặt phòng VIP (áp dụng Đa hình).
-*   **Hóa đơn tự động (Billing System):** Tự động tính toán tổng chi phí (tiền phòng + tiền dịch vụ) và xuất hóa đơn chi tiết khi khách Check-out.
+## 🚀 Chức năng
 
----
+Menu console gồm 7 chức năng:
 
-## 💻 Kiến trúc và Thiết kế OOP
+1. Tìm phòng trống theo ngày check-in và check-out
+2. Đặt phòng (nhập thông tin khách, chọn phòng, thêm dịch vụ)
+3. Check-in
+4. Check-out và in hóa đơn
+5. Thêm dịch vụ vào một đặt phòng
+6. Hủy đặt phòng
+7. Xem danh sách đặt phòng
 
-Dự án tuân thủ nghiêm ngặt nguyên lý **SOLID** (đặc biệt là Single Responsibility và Open/Closed) và 4 nguyên lý OOP:
-*   **Đóng gói (Encapsulation):** Bảo vệ dữ liệu danh sách phòng và đơn đặt phòng bằng kỹ thuật Backing Field (`IReadOnlyList`), chỉ cho phép cập nhật thông qua các phương thức được kiểm soát trong `HotelManager`.
-*   **Trừu tượng (Abstraction):** Ẩn chi tiết triển khai thông qua `abstract class Room` và `interface IAddOnService`.
-*   **Kế thừa (Inheritance):** Các lớp `StandardRoom` và `VipRoom` kế thừa thuộc tính và phương thức từ lớp cha `Room`, tái sử dụng tối đa mã nguồn.
-*   **Đa hình (Polymorphism):** Cùng một lệnh gọi tính tiền `CalculateNightlyRate()` hoặc `CalculateCost()`, hệ thống tự động đa hình ra các công thức tính toán khác nhau tùy thuộc vào đối tượng thực tế (Phòng thường hay VIP).
+Dữ liệu mẫu khi khởi động: 4 phòng (101, 102 là Standard; 201, 202 là VIP) và một đặt phòng mẫu `R001` để thử ngay check-in, check-out.
 
----
+## 💰 Quy tắc tính tiền
 
-## ⚙️ Hướng dẫn cài đặt và Chạy chương trình
+| Loại | Cách tính |
+|---|---|
+| Phòng Standard | Giá cơ bản mỗi đêm |
+| Phòng VIP | Giá cơ bản cộng phí dịch vụ VIP 20% mỗi đêm |
+| Ăn sáng | 100,000 VND mỗi người mỗi đêm |
+| Giặt ủi | 150,000 VND cố định |
+| Suối nước nóng và xông hơi | 100,000 VND mỗi người, gói một lần |
+| Khu vui chơi sinh thái | Miễn phí cho mọi khách |
 
-### Yêu cầu hệ thống:
-*   Cài đặt **.NET SDK** (phiên bản 6.0 trở lên).
-*   Công cụ lập trình (Visual Studio Code, Visual Studio 2022,...).
+Phòng VIP được miễn phí ăn sáng, giặt ủi, suối nước nóng và xông hơi.
 
-### Các bước chạy:
-1. **Clone repository về máy:**
-   ```bash
-   git clone https://github.com/nguyenlehao1912/Project-final-v2.git
-   cd Project-final-v2
-   ```
+## 📂 Cấu trúc project
 
-2. **Khởi chạy ứng dụng (Console Menu):**
-   ```bash
-   dotnet run
-   ```
-   *Hệ thống sẽ tự động nạp dữ liệu mẫu (Seed Data) với 4 phòng (2 Standard, 2 VIP) và 1 đơn đặt phòng mẫu (R001) để bạn trải nghiệm ngay lập tức.*
+| File | Nội dung |
+|---|---|
+| `Room-information.cs` | `Guest`, `RoomType`, `Room` (abstract), `StandardRoom`, `VipRoom` |
+| `Reservation.cs` | `ReservationStatus`, `Reservation` (đặt phòng và máy trạng thái) |
+| `HotelManager.cs` | Quản lý phòng và đặt phòng, tìm phòng trống, chặn đặt trùng |
+| `AddOnServices.cs` | `IAddOnService` và 4 dịch vụ: `BreakfastService`, `LaundryService`, `SpaService`, `EcoParkService` |
+| `Billing.cs` | `InvoiceLine`, `Invoice`, `BillingService` (tính và in hóa đơn) |
+| `Program.cs` | Console Menu và điểm khởi chạy |
+| `Testrunner.cs` | 3 scenario kiểm thử tự động |
 
----
+## ⚙️ Cách chạy
 
-## 🧪 Chạy bộ Kiểm thử tự động (Unit Testing)
+Yêu cầu: cài [.NET 10 SDK](https://dotnet.microsoft.com/download).
 
-Dự án được tích hợp sẵn một bộ kiểm thử (`TestRunner.cs`) tự động chạy qua 3 kịch bản: **Happy path** (Luồng chuẩn), **Validation / Error** (Bắt lỗi nghiệp vụ) và **Polymorphism** (Kiểm tra tính Đa hình).
-
-Để chạy bộ Test, bạn gõ lệnh sau vào Terminal:
 ```bash
+# Chạy chương trình
+dotnet run
+
+# Chạy bộ test (in PASS/FAIL cho từng kiểm tra)
 dotnet run -- test
 ```
-*Nếu tất cả các test case đều in ra chữ `[PASS]`, hệ thống đang hoạt động hoàn hảo!*
+
+## 🧪 Kiểm thử
+
+`Testrunner.cs` có 3 scenario chạy qua code thật:
+
+1. **Happy path:** tìm phòng, đặt phòng, check-in, check-out, kiểm tra hóa đơn phòng Standard là 1,750,000 VND.
+2. **Validation / error:** dữ liệu sai (tên khách rỗng, check-out không sau check-in), đặt trùng phòng, đặt phòng không tồn tại, thao tác sai trạng thái (check-out khi chưa check-in, check-in hai lần, hủy sau khi đã check-in), hủy đơn đang Booked thì phòng trống lại.
+3. **Polymorphism:** giá đêm Standard 500,000 và VIP 1,440,000 qua cùng kiểu `Room`; cùng bộ dịch vụ, hóa đơn phòng VIP là 2,880,000 VND vì các dịch vụ được miễn phí.
+
+## 🔄 State machine của Reservation
+
+```mermaid
+stateDiagram-v2
+    [*] --> Booked : new Reservation()
+    Booked --> CheckedIn : CheckIn()
+    CheckedIn --> CheckedOut : CheckOut()
+    Booked --> Cancelled : Cancel()
+    Booked --> Booked : AddService()
+    CheckedIn --> CheckedIn : AddService()
+    CheckedOut --> [*]
+    Cancelled --> [*]
+```
+
+Mọi chuyển trạng thái không có trong sơ đồ đều ném `InvalidOperationException`. `AddService()` không đổi trạng thái và chỉ dùng được ở `Booked` và `CheckedIn`.
+
+## 🧠 Áp dụng OOP
+
+| Nguyên lý | Nơi áp dụng |
+|---|---|
+| Đóng gói | `Reservation.Status` và `TotalBill` có `private set`; `HotelManager` giữ danh sách private, chỉ lộ ra `IReadOnlyList` |
+| Trừu tượng | `abstract class Room`, `interface IAddOnService` |
+| Kế thừa | `StandardRoom` và `VipRoom` kế thừa `Room` |
+| Đa hình | `CalculateNightlyRate()` được override ở hai lớp con; `BillingService` gọi `CalculateCost()` và `FreeForVip` qua `IAddOnService` |
+
+Thêm dịch vụ mới chỉ cần thêm một class cài đặt `IAddOnService`, không phải sửa `BillingService`.
+
+## 🤖 Sử dụng AI
+
+Nhóm ghi lại việc dùng AI (Claude và Gemini) trong `AI_Usage_Log.md`.
