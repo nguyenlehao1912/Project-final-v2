@@ -145,3 +145,111 @@
 **AI trả lời:** Chỉ ra các điểm "vênh" do 2 thành viên code độc lập: Sai tên thuộc tính (`Number` thành `RoomNumber`), sai cách gọi đa hình khi khởi tạo (`new StandardRoom` thay vì truyền class Type), và cách gọi biến VIP. AI cung cấp bản sửa lỗi tích hợp cho `Program.cs` và `BillingService` để khớp với `interface IAddOnService`.
 
 **Nhóm làm:** Điều chỉnh lại các thuộc tính trong `Billing.cs`, sửa logic Menu Console trong vòng lặp `while/switch-case` tại `Program.cs`. Chạy thử nghiệm luồng tích hợp: Khởi tạo phòng -> Tìm kiếm phòng trống -> Xuất thông tin phòng có đa hình giá tiền và các dịch vụ Add-on đi kèm.
+-----------------------------------------------------------
+## Tuần 4: Hoàn thiện, tích hợp và kiểm thử toàn hệ thống
+**Công cụ AI:** Claude (Anthropic) | **Thành viên:** Bùi Tấn Lộc (25110037)
+### 4.1. Hỏi: Tuần 4 là tuần cuối, sau nhận xét của thầy mình cần làm gì?
+
+**AI trả lời:** Chỉ ra code lúc đó chưa build được: `Program.cs` dùng `room.Number`, `room.Type.Name`, `GetNightlyRate()` trong khi `Room` có `RoomNumber`, `Type` là enum và hàm là `CalculateNightlyRate()`; `Billing.cs` dùng `r.AddOns` nhưng `Reservation` chưa có. Ngoài ra `AddReservation` chưa chặn đặt trùng, `Cancel()` chưa chặn đúng trạng thái, `Reservation.CheckOut()` tự tính tiền trùng việc với `BillingService`. Thứ tự gợi ý: cho code build được và nối menu 2-4, viết `TestRunner` với 3 scenario (happy path, validation/error, polymorphism), rồi làm tài liệu (Self-Explanation, state machine diagram, README, AI log tuần 4, khớp tên tool trong form).
+
+**Nhóm làm:** Sửa các chỗ lệch tên, thêm `AddOns`/`AddService` vào `Reservation`, chuyển việc tạo đặt phòng và chặn trùng sang `HotelManager.MakeReservation`, cho `CheckOut()` trả về `Invoice` do `BillingService` tạo, nối đủ menu trong `Program.cs`.
+
+### 4.2. Hỏi: Viết `TestRunner.cs` và sửa cho khớp tên hàm đã đổi
+
+**AI trả lời:** Viết `TestRunner.cs` chạy bằng `dotnet run -- test`, in PASS/FAIL, gồm 3 scenario thầy yêu cầu. Bản đầu có khoảng 30 kiểm tra và khá dài, sau khi nhóm nói quá dài thì rút gọn còn vài kiểm tra chính cho mỗi scenario. Khi code đổi tên (`AddReservation` thành `MakeReservation`, `AddAddOn` thành `AddService`, `CheckOut()` trả về `Invoice`) thì viết lại cho khớp. Số liệu kỳ vọng được tính tay từ dữ liệu mẫu: hóa đơn phòng Standard 2 đêm với đủ dịch vụ là 1,750,000 VND, phòng VIP là 2,880,000 VND. AI nói rõ lúc viết chưa có trình biên dịch nên chưa chạy thử. AI cũng phát hiện `Cancel()` bị ngược điều kiện (`Status == Booked` thì ném lỗi), hai test về hủy đơn sẽ bắt đúng lỗi này.
+
+**Nhóm làm:** Dùng bản rút gọn, thêm lệnh gọi `TestRunner.Run()` vào `Program.cs`, sửa `Cancel()` thành `if (Status != ReservationStatus.Booked) throw ...`, tự chạy `dotnet run -- test` để lấy kết quả làm minh chứng.
+
+### 4.3. Hỏi: Vẽ State Machine Diagram cho `Reservation`
+
+**AI trả lời:** Vẽ sơ đồ (file `state-machine-reservation.png`) gồm 4 trạng thái `Booked`, `CheckedIn`, `CheckedOut`, `Cancelled`; trạng thái đầu là `new Reservation()`; chuyển trạng thái qua `CheckIn()`, `CheckOut()`, `Cancel()` kèm điều kiện; `AddService()` là vòng tự chuyển ở `Booked` và `CheckedIn`; mọi chuyển khác ném `InvalidOperationException`. AI lưu ý sơ đồ chỉ đúng nếu `Cancel()` đã sửa như ở mục 4.2, nên cần đối chiếu với code trước khi nộp.
+
+**Nhóm làm:** Đưa sơ đồ vào báo cáo tuần 4 và vào repo, ghi vài dòng giải thích dưới hình.
+
+### 4.4. Hỏi: Kiểm tra code đã hoàn chỉnh chưa và có khớp sơ đồ không
+
+**AI trả lời:** Lần này AI cài được .NET 10 và build thật bằng đúng các file nhóm gửi: 0 lỗi, 5 cảnh báo nullable, `dotnet run -- test` ra 15/15 PASS. AI cũng chạy thử cả 4 trạng thái với `CheckIn`, `CheckOut`, `Cancel`, `AddService` và kết quả khớp từng mũi tên của sơ đồ. Phần còn thiếu không nằm ở code: `README.md` vẫn ghi "Đồ án DSA", AI log chưa có tuần 4, phần Self-Explanation chưa viết, form khai báo tool chỉ ghi Gemini trong khi log ghi cả Claude và Gemini. Một chi tiết nhỏ: `Guest` báo "10 or 11 digits" nhưng chỉ kiểm tra độ dài chuỗi.
+
+**Nhóm làm:** Cập nhật `README.md`, bổ sung AI log tuần 4, viết Self-Explanation và sửa form khai báo tool cho đủ cả hai công cụ.
+----------------------------------------------------------------------------
+**Công cụ AI:** Claude (Sonnet 5.5 Medium) | **Thành viên:** Nguyễn Lê Hảo (25110019)
+### 4.1. Hỏi: Rà toàn bộ code chính, đã hoàn chỉnh chưa, cần sửa ở file và dòng nào?
+
+**AI trả lời:** Chưa hoàn chỉnh và chưa build được. Thiết kế OOP khá tốt (đa hình ở `Room`, đóng gói bằng `private set` và `IReadOnlyList`, tách `BillingService` khỏi `Reservation`) nhưng các file chưa khớp nhau. Lỗi biên dịch: `Program.cs` dùng `room.Number`, `room.Type.Name`, `room.Type.GetNightlyRate()` không tồn tại; `Billing.cs` dùng `IAddOnService` và `r.AddOns` chưa được định nghĩa. Lỗi logic: `CheckOut()` chỉ tính tiền phòng, bỏ qua dịch vụ; `Console.WriteLine` nằm trong class nghiệp vụ; `Cancel()` chưa chặn đúng trạng thái; `GetAvailableRooms` chưa kiểm tra ngày; `AddReservation` cho phép đặt trùng phòng. Còn thiếu chức năng đặt phòng, check-in, check-out trong menu.
+
+**Nhóm làm:** Ghi lại danh sách việc cần sửa theo từng file (mục A đến G) để sửa dần.
+
+### 4.2. Hỏi: Viết `IAddOnService` và điều chỉnh file `AddOnServices.cs` của nhóm
+
+**AI trả lời:** Đưa mẫu interface kèm các dịch vụ cụ thể. Khi xem file thật của nhóm, AI nhận xét `FreeForVip` có giá trị mặc định `false` trong interface (default interface member) là thiết kế tốt hơn bản mẫu, và đề nghị sửa: thêm `using System;` (thiếu thì `ArgumentException` không biên dịch được), kiểm tra đầu vào trong constructor (`persons > 0`, giá không âm), đưa số người vào `Name` để hóa đơn dễ đối chiếu, ghi rõ "(free)" cho `EcoParkService`. Gợi ý tùy chọn: tách lớp trừu tượng `PerPersonService` cho `BreakfastService` và `SpaService` để bỏ code lặp. AI nhắc xóa file mẫu cũ để không bị lỗi định nghĩa trùng.
+
+**Nhóm làm:** Áp dụng phần validate, đổi `Name` và thêm "(free)". Chưa tách `PerPersonService`.
+
+### 4.3. Hỏi: `AddOns` là phương thức hay thuộc tính?
+
+**AI trả lời:** Là thuộc tính chỉ đọc (`IReadOnlyList<IAddOnService> AddOns => _addOns;`), không có `()` và chỉ có `get`. Field `_addOns` là `List` private, bên ngoài chỉ duyệt được, muốn thêm dịch vụ phải gọi phương thức `AddService()` có kiểm tra hợp lệ. Đây là tính đóng gói, cùng mô hình với `Rooms` và `Reservations` trong `HotelManager`.
+
+**Nhóm làm:** Đọc hiểu để chuẩn bị trả lời khi bảo vệ.
+
+### 4.4. Hỏi: Gỡ rối từng phần B đến G, có code thì cho xem
+
+**AI trả lời:** Đưa bản sửa theo từng file. `Reservation.cs`: kiểm tra đầu vào ở constructor, lưu `.Date` cho ngày vào ra, `CheckOut()` gọi `BillingService` và trả về `Invoice`, `Cancel()` chỉ cho hủy khi `Booked`, thêm `AddOns` và `AddService`, bỏ `Console.WriteLine`. `HotelManager.cs`: `readonly`, `AddRoom` chặn `null` và trùng số phòng, `GetAvailableRooms` ném `ArgumentException` khi ngày sai, thay `AddReservation` bằng `MakeReservation` (kiểm tra phòng tồn tại, ID trùng, phòng còn trống), thêm `FindRoom`, `FindReservation`, `CheckIn`, `CheckOut`, `Cancel`. `Billing.cs`: bỏ `if (Type == Vip)` bằng `HasFreeServices` của `Room`, kiểm tra số đêm, đóng gói `Invoice`. `Program.cs`: thêm menu 2 đến 7, hàm `Run(Action)` bắt lỗi ở một chỗ, các hàm `ReadText`, `ReadInt`, `ReadDate`, dữ liệu mẫu `R001`.
+
+**Nhóm làm:** Áp dụng cho `Reservation.cs`, `HotelManager.cs`, `Program.cs`. Với `Billing.cs` nhóm chọn giữ bản gốc (xem 4.5).
+
+### 4.5. Hỏi: Có thể giữ nguyên `Room-information.cs` và `Billing.cs` không?
+
+**AI trả lời:** Được. Giữ `Room-information.cs` thì `Guest` nằm chung file, chỉ cần sửa `private set` cho `BasePrice`, chống `null` cho `amenities` và thêm `HasFreeServices`. Giữ `Billing.cs` gốc vẫn biên dịch và chạy đúng với các file đã sửa, đổi lại sẽ còn dùng `if (Type == Vip)` (ít đa hình hơn), `Invoice.Lines` còn là `List` công khai, `CalculateRoomCharge` không ai gọi và cột 40 ký tự có thể lệch khi tên dịch vụ dài. AI nói trước điểm này có thể bị nhắc khi chấm.
+
+**Nhóm làm:** Giữ nguyên tên file `Room-information.cs` và `Billing.cs`, không thêm `HasFreeServices`.
+
+### 4.6. Hỏi: Làm sao để chạy file, và lỗi `CS0246` về `BiliingService`
+
+**AI trả lời:** Chạy bằng `dotnet build` rồi `dotnet run` ở thư mục có file `.csproj` (hoặc Visual Studio bằng Ctrl + F5), cần .NET 6 trở lên vì project dùng file-scoped namespace. Lỗi `CS0246` do gõ sai chính tả `BiliingService`, tên đúng là `BillingService`. AI cũng liệt kê các lỗi thường gặp như hai hàm `Main`, định nghĩa trùng do file cũ chưa xóa.
+
+**Nhóm làm:** Sửa lại tên class trong `Reservation.cs` và build lại.
+
+### 4.7. Hỏi: Giải thích nhóm các hàm `FindRoom`, `FindReservation`, `CheckIn`, `CheckOut`, `Cancel` trong `HotelManager` (mục D5)
+
+**AI trả lời:** Vì `_reservations` là private nên nếu thiếu các hàm này thì `Program.cs` phải tự duyệt danh sách và tự xử lý `null` ở nhiều chỗ. `FindReservation` trả `null` khi không thấy, còn `GetReservationOrThrow` ném lỗi. `HotelManager` chỉ tìm đúng đối tượng rồi giao việc cho `Reservation`, luật đổi trạng thái chỉ nằm ở một nơi (che giấu cách lưu trữ, tránh lặp code, mỗi class một trách nhiệm).
+
+**Nhóm làm:** Ghi chú lý do thiết kế để chuẩn bị bảo vệ.
+
+### 4.8. Hỏi: Liên kết `TestRunner` vào `Program` và vì sao `dotnet run` vẫn hiện menu
+
+**AI trả lời:** Đổi `Main` từ `void` sang `int` và thêm nhánh `if (args.Length > 0 && args[0] == "test") return TestRunner.Run();`. File test cũ gọi `AddAddOn` và `AddReservation` không còn tồn tại, cần đổi thành `AddService` và `MakeReservation`. Nếu vẫn ra menu thì do chạy `dotnet run` không có `-- test`, chưa thêm nhánh `if`, chạy bằng nút Run của IDE (không truyền tham số), hoặc đang chạy bản build cũ.
+
+**Nhóm làm:** Sửa `Main` và `Testrunner.cs`, chạy `dotnet run -- test`.
+
+### 4.9. Hỏi: Giải thích `Testrunner.cs` và viết thêm test đặt phòng, tính tiền
+
+**AI trả lời:** `Check` kiểm tra một điều kiện đúng sai, `Throws<T>` kiểm tra đoạn code phải ném đúng loại lỗi (dùng generic và delegate `Action`). File chia ba nhóm: happy path, validation, đa hình. Có một điểm chưa tốt: các test dùng chung một `HotelManager` nên phụ thuộc thứ tự chạy. AI viết thêm hàm `RunExtra()` gồm bốn nhóm (đặt phòng, hóa đơn Standard, hóa đơn VIP, so sánh và trạng thái), mỗi nhóm một `HotelManager` riêng, kèm bảng tính tay các con số (ví dụ Standard 3 đêm = 1,500,000, VIP 2 đêm = 2,880,000). Trong lúc giải thích, AI viết nhầm giá VIP một lần rồi tự đính chính là 1,200,000 × 1.2 = 1,440,000.
+
+**Nhóm làm:** Tự đối chiếu các con số bằng cách tính tay trước khi tin kết quả test.
+
+### 4.10. Hỏi: Cho vài kịch bản để dùng thử từ đầu đến cuối với tư cách khách hàng, và kịch bản trùng phòng
+
+**AI trả lời:** Đưa các kịch bản chạy bằng menu: khách Standard có dịch vụ (tổng 2,300,000), khách VIP được miễn phí dịch vụ (tổng 2,880,000), dùng đặt phòng mẫu `R001`, các ca nhập sai (ngày sai, ID không tồn tại, check-out khi chưa check-in...), đặt rồi hủy. Với trùng phòng: trùng hoàn toàn, nằm lọt bên trong, chồng đầu, chồng đuôi, bao trùm thì phải bị chặn; ngày nối tiếp (trả 13, nhận 13) và đơn đã hủy thì được đặt, do `IsOverlapping` dùng `<` và `>` không có dấu `=`.
+
+**Nhóm làm:** Chạy thử theo kịch bản trên máy để kiểm tra luồng và các thông báo lỗi.
+
+### 4.11. Hỏi: Kiểm tra lại 7 file đã sửa, đã ổn chưa
+
+**AI trả lời:** Chưa ổn. `HotelManager.cs` thiếu `using System.Linq;` nên không biên dịch. `Reservation.cs` có lỗi logic nghiêm trọng: `Cancel()` kiểm tra `Status == Booked` nên bị ngược (đơn đang đặt thì không hủy được, đơn đã check-in lại hủy được). Ngoài ra còn `Console.WriteLine` trong `Reservation` khiến thông báo bị in hai lần. AI viết kịch bản tái hiện lỗi `Cancel()` bằng menu và bằng test, rồi dự đoán kết quả sau khi sửa là toàn bộ test PASS. Khi đếm, AI nói 16 dòng rồi tự đếm lại còn 15, và đính chính rằng trước khi sửa có 3 test FAIL chứ không phải 2.
+
+**Nhóm làm:** Thêm `using System.Linq;`, đổi điều kiện thành `Status != Booked`, bỏ các `Console.WriteLine` trong `Reservation`, chạy `dotnet run -- test`.
+
+### 4.12. Hỏi: Ràng buộc số điện thoại từ 10 đến 11 số, và chỉ hỏi lại số điện thoại khi nhập sai
+
+**AI trả lời:** Đặt luật kiểm tra trong constructor `Guest` (nơi bảo vệ dữ liệu): độ dài từ 10 đến 11 và mọi ký tự phải là chữ số (`phone.All(char.IsDigit)`), nếu không thì ném `ArgumentException`. Để chỉ hỏi lại riêng số điện thoại, thêm hàm `ReadPhone()` trong `Program.cs` lặp cho đến khi nhập đúng, tạo thử một `Guest` để tái sử dụng luật trong `Guest`, nhờ vậy đổi luật sau này chỉ sửa một nơi. AI cũng đưa thêm 5 test cho ranh giới 9, 10, 11, 12 số và số có chữ.
+
+**Nhóm làm:** Sửa `Guest` và thêm `ReadPhone()`, nhập thử các trường hợp ranh giới bằng menu.
+----------------------------------------------------------------------------
+**Công cụ AI:** Gemini (3.1 Pro) | **Thành viên:** Nguyễn Lê Hảo (25110019)
+### 4.1. Hỏi: Cấu trúc báo cáo tuần 4 cần những gì để đáp ứng đủ góp ý của Giảng viên?
+**AI trả lời:** Phân tích yêu cầu và gợi ý chia báo cáo thành 5 phần chính để bù đắp các mục còn thiếu: Cập nhật Kế hoạch, viết Self-Explanation chỉ đích danh các class/hàm cho 4 nguyên lý OOP, thiết kế State Machine Diagram cho Reservation, mô tả 3 kịch bản test cụ thể và lưu ý phải đồng nhất ghi tên công cụ AI là Gemini.
+**Nhóm làm:** Áp dụng khung báo cáo của AI, tự bổ sung giải thích logic hệ thống và đưa hình ảnh biểu đồ trạng thái vào báo cáo.
+
+### 4.2. Hỏi: Logic kết nối toàn bộ luồng Console Menu ở Program.cs, bổ sung Edge cases và TestRunner
+**AI trả lời:** AI rà soát mã nguồn `Program.cs` hiện tại, hướng dẫn nối các hàm `MakeReservation`, `CheckIn`, `CheckOut`. Hỗ trợ sinh mã cho file kiểm thử `TestRunner.cs`, bổ sung các điều kiện kiểm tra (validation) như số điện thoại, chặn số âm trong dịch vụ, chặn null trong phòng. Hướng dẫn đổi kiểu trả về của hàm `Main` thành `int` để chạy test.
+**Nhóm làm:** Chạy kiểm thử hệ thống, xác nhận luồng console menu đã kết nối trọn vẹn. Thêm các logic validate dữ liệu, sửa lỗi logic trạng thái khi Cancel/Check-out, gộp nhánh xử lý xung đột và push code hoàn thiện lên nhánh `main`.
