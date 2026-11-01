@@ -7,7 +7,7 @@ namespace Project_Final;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static int Main(string[] args)
     {
         Console.OutputEncoding = Encoding.UTF8;
         if(args.Length > 0 && args[0] == "test")
