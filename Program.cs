@@ -96,7 +96,7 @@ public class Program
         Console.WriteLine("--- Guest information ---");
         string name = ReadText("Full name: ");
         int idNumber = ReadInt("ID number: ");
-        string phone = ReadText("Phone: ");
+        string phone = ReadPhone("Phone: ");
         Guest guest = new Guest(name, idNumber, phone);
 
         DateTime checkIn = ReadDate("Check-in date (dd/MM/yyyy): ");
@@ -243,7 +243,23 @@ public class Program
             Console.WriteLine("Please enter a whole number.");
         }
     }
-
+    // Hỏi lại cho đến khi SĐT hợp lệ. Luật kiểm tra nằm trong Guest, không lặp lại ở đây.
+    private static string ReadPhone(string prompt)
+    {
+        while (true)
+        {
+            string phone = ReadText(prompt);
+            try
+            {
+                _ = new Guest("check", 0, phone);   
+                return phone;
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine("Error: " + ex.Message + ". Please re-enter.");
+            }
+        }
+    }
     // Đổi sang chữ hoa để gõ "r001" vẫn tìm được "R001"
     private static string ReadReservationId()
     {
